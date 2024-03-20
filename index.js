@@ -6,13 +6,10 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import EmployeesRouter from "./routes/Employees.routes.js";
 import OCRRouter from "./routes/OCR.routes.js";
-import upload from "./middleware/multer.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import fs from "fs";
+import UploadsRouter from "./routes/Uploads.routes.js";
 
 // Load environment variables from the .env file
 dotenv.config({ path: "./.env" });
-const genAI = new GoogleGenerativeAI("AIzaSyCLYM0kmGiMn70ME1I-FqvKXDxTTGR-pOQ");
 
 // Create an instance of Express
 const app = express();
@@ -58,33 +55,8 @@ app.use("/employees", EmployeesRouter);
 // Handles the route for image testing and uses the ImageTestingRouter
 app.use("/OCR", OCRRouter);
 
-app.post("/upload", upload.single("image"), async (req, res) => { 
-  console.log({"hfjk": req.file.path})
-  function fileToGenerativePart(path, mimeType) {
-    return {
-      inlineData: {
-        data: Buffer.from(fs.readFileSync(path)).toString("base64"),
-        mimeType,
-      },
-    };
-  }
-    // For text-and-image input (multimodal), use the gemini-pro-vision model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
-  
-    const prompt = "explain the image.";
-  
-    const imageParts = [
-      fileToGenerativePart(req.file.path, "image/png")
-    ];
-  
-    const result = await model.generateContent([prompt, ...imageParts]);
-    const response = await result.response;
-    const text = response.text();
-    console.log(text);
-  res.send(text);
-}
-);
-
+// Handles the route for uploads and uses the UploadsRouter
+app.use("/uploads", UploadsRouter);
   
 
 export default app;
