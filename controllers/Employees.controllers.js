@@ -46,8 +46,10 @@ const EmployeesController = {
   // Controller to delete an employee
   deleteEmployee: async (req, res) => {
     try {
+      console.log(req.params.id);
       const employee = await EmployeeModel.findById(req.params.id);
-      const deletedEmployee = await employee.remove();
+      console.log(employee)
+      const deletedEmployee = await employee.deleteOne();
       res.status(200).json({success:true, deletedEmployee});
     } catch (error) {
       res.status(404).json({success:false, message: error.message });
